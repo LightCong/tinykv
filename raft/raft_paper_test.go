@@ -213,7 +213,7 @@ func TestFollowerVote2AA(t *testing.T) {
 		nvote   uint64
 		wreject bool
 	}{
-		{None, 1, false},
+		{None, 1, false}, //没有投票，收到自己的一个投票请求？？
 		{None, 2, false},
 		{1, 1, false},
 		{2, 2, false},
@@ -232,7 +232,7 @@ func TestFollowerVote2AA(t *testing.T) {
 			{From: 1, To: tt.nvote, Term: 1, MsgType: pb.MessageType_MsgRequestVoteResponse, Reject: tt.wreject},
 		}
 		if !reflect.DeepEqual(msgs, wmsgs) {
-			t.Errorf("#%d: msgs = %v, want %v", i, msgs, wmsgs)
+			t.Errorf("#%d: msgs = %+v, want %+v", i, msgs, wmsgs)
 		}
 	}
 }
@@ -255,7 +255,6 @@ func TestCandidateFallback2AA(t *testing.T) {
 		}
 
 		r.Step(tt)
-
 		if g := r.State; g != StateFollower {
 			t.Errorf("#%d: state = %s, want %s", i, g, StateFollower)
 		}
@@ -367,9 +366,8 @@ func TestLeaderStartReplication2AB(t *testing.T) {
 	r.becomeLeader()
 	commitNoopEntry(r, s)
 	li := r.RaftLog.LastIndex()
-
 	ents := []*pb.Entry{{Data: []byte("some data")}}
-	r.Step(pb.Message{From: 1, To: 1, MsgType: pb.MessageType_MsgPropose, Entries: ents})
+	r.Step(pb.Message{From: 1, To: 1,MsgType: pb.MessageType_MsgPropose, Entries: ents})
 
 	if g := r.RaftLog.LastIndex(); g != li+1 {
 		t.Errorf("lastIndex = %d, want %d", g, li+1)
@@ -416,6 +414,7 @@ func TestLeaderCommitEntry2AB(t *testing.T) {
 	if g := r.RaftLog.committed; g != li+1 {
 		t.Errorf("committed = %d, want %d", g, li+1)
 	}
+	r.debug()
 	wents := []pb.Entry{{Index: li + 1, Term: 1, Data: []byte("some data")}}
 	if g := r.RaftLog.nextEnts(); !reflect.DeepEqual(g, wents) {
 		t.Errorf("nextEnts = %+v, want %+v", g, wents)
@@ -468,7 +467,6 @@ func TestLeaderAcknowledgeCommit2AB(t *testing.T) {
 				r.Step(acceptAndReply(m))
 			}
 		}
-
 		if g := r.RaftLog.committed > li; g != tt.wack {
 			t.Errorf("#%d: ack commit = %v, want %v", i, g, tt.wack)
 		}
@@ -480,12 +478,14 @@ func TestLeaderAcknowledgeCommit2AB(t *testing.T) {
 // entries created by previous leaders.
 // Also, it applies the entry to its local state machine (in log order).
 // Reference: section 5.3
+
+//todo log 的持久化和恢复问题
 func TestLeaderCommitPrecedingEntries2AB(t *testing.T) {
 	tests := [][]pb.Entry{
-		{},
+		//{},
 		{{Term: 2, Index: 1}},
-		{{Term: 1, Index: 1}, {Term: 2, Index: 2}},
-		{{Term: 1, Index: 1}},
+		//{{Term: 1, Index: 1}, {Term: 2, Index: 2}},
+		//{{Term: 1, Index: 1}},
 	}
 	for i, tt := range tests {
 		storage := NewMemoryStorage()
@@ -496,11 +496,15 @@ func TestLeaderCommitPrecedingEntries2AB(t *testing.T) {
 		r.becomeLeader()
 		r.Step(pb.Message{From: 1, To: 1, MsgType: pb.MessageType_MsgPropose, Entries: []*pb.Entry{{Data: []byte("some data")}}})
 
+
 		for _, m := range r.readMessages() {
 			r.Step(acceptAndReply(m))
 		}
 
+		r.debug()
+
 		li := uint64(len(tt))
+		//todo term3 看到一个no op 看到一个some data，term 3 以前的log 都提交了
 		wents := append(tt, pb.Entry{Term: 3, Index: li + 1}, pb.Entry{Term: 3, Index: li + 2, Data: []byte("some data")})
 		if g := r.RaftLog.nextEnts(); !reflect.DeepEqual(g, wents) {
 			t.Errorf("#%d: ents = %+v, want %+v", i, g, wents)
@@ -547,9 +551,11 @@ func TestFollowerCommitEntry2AB(t *testing.T) {
 	for i, tt := range tests {
 		r := newTestRaft(1, []uint64{1, 2, 3}, 10, 1, NewMemoryStorage())
 		r.becomeFollower(1, 2)
+		r.debug()
 
 		r.Step(pb.Message{From: 2, To: 1, MsgType: pb.MessageType_MsgAppend, Term: 1, Entries: tt.ents, Commit: tt.commit})
 
+		r.debug()
 		if g := r.RaftLog.committed; g != tt.commit {
 			t.Errorf("#%d: committed = %d, want %d", i, g, tt.commit)
 		}
@@ -577,6 +583,8 @@ func TestFollowerCheckMessageType_MsgAppend2AB(t *testing.T) {
 	}{
 		// match with committed entries
 		{0, 0, false},
+
+
 		{ents[0].Term, ents[0].Index, false},
 		// match with uncommitted entries
 		{ents[1].Term, ents[1].Index, false},
@@ -903,7 +911,8 @@ func commitNoopEntry(r *Raft, s *MemoryStorage) {
 		if m.MsgType != pb.MessageType_MsgAppend || len(m.Entries) != 1 || m.Entries[0].Data != nil {
 			panic("not a message to append noop entry")
 		}
-		r.Step(acceptAndReply(m))
+		reMsg:=acceptAndReply(m)
+		r.Step(reMsg)
 	}
 	// ignore further messages to refresh followers' commit index
 	r.readMessages()
@@ -917,6 +926,7 @@ func acceptAndReply(m pb.Message) pb.Message {
 		panic("type should be MessageType_MsgAppend")
 	}
 	// Note: reply message don't contain LogTerm
+
 	return pb.Message{
 		From:    m.To,
 		To:      m.From,

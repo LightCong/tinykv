@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -196,6 +197,7 @@ func TestRawDelete1(t *testing.T) {
 	assert.Nil(t, err)
 
 	val, err := Get(s, cf, []byte{99})
+	fmt.Println("@@@@@@@@@@@@@",val,err)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, []byte(nil), val)
 }
@@ -224,7 +226,9 @@ func TestRawScan1(t *testing.T) {
 
 	resp, err := server.RawScan(nil, req)
 	assert.Nil(t, err)
-
+	for _,kv:=range resp.Kvs {
+		fmt.Println("$$$$$$$$$$$$",*kv)
+	}
 	assert.Equal(t, 3, len(resp.Kvs))
 	expectedKeys := [][]byte{{1}, {2}, {3}}
 	for i, kv := range resp.Kvs {

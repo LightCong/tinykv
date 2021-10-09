@@ -79,6 +79,10 @@ const (
 	MessageType_MsgTimeoutNow MessageType = 12
 )
 
+
+
+
+
 var MessageType_name = map[int32]string{
 	0:  "MsgHup",
 	1:  "MsgBeat",

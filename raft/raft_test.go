@@ -86,6 +86,10 @@ func TestLeaderElection2AA(t *testing.T) {
 		{newNetworkWithConfig(cfg, nil, nopStepper, nopStepper, nil, nil), StateLeader, 1},
 	}
 
+	for _,tt:=range tests {
+		fmt.Println(tt.network.peers)
+	}
+
 	for i, tt := range tests {
 		tt.send(pb.Message{From: 1, To: 1, MsgType: pb.MessageType_MsgHup})
 		sm := tt.network.peers[1].(*Raft)
