@@ -11,11 +11,10 @@ func (r *Raft) leaderAppendEntry(m pb.Message) error {
 			EntryType: ent.EntryType,
 			Data:      ent.Data,
 			Term:      r.Term,
-			Index:     r.RaftLog.LastIndex()+1,
 		}
-		r.RaftLog.entries = append(r.RaftLog.entries, newEnt)
+		r.RaftLog.Append(newEnt)
 	}
-	if len(r.Prs) ==1 {
+	if len(r.Prs) == 1 {
 		//直接提交并返回
 		r.RaftLog.committed = r.calcLeaderCommitIdx()
 	}
@@ -31,21 +30,26 @@ func (r *Raft) sendAppend(to uint64) bool {
 	if r.RaftLog.LastIndex() < followerNextIndex {
 		return false
 	}
-
 	//lastindex >= follower.nextindex && lastindex !=0
 	var preLogIndex uint64 = 0
 	var preLogTerm uint64 = 0
 	if followerNextIndex > 0 {
 		preLogIndex = followerNextIndex - 1
-		preLogTerm = r.RaftLog.entries[preLogIndex].Term
-	}
-	tmpents := r.RaftLog.entries[followerNextIndex:]
-	ents := []*pb.Entry{}
-	for _, ent := range tmpents {
-		tmpent:=ent
-		ents = append(ents, &tmpent)
+		preLogTerm, _ = r.RaftLog.Term(preLogIndex)
 	}
 
+	//todo 暂时，先这样赋值调整一下,preLogIndex == 0 && preLogTerm == 0 说明从头开始
+	if preLogIndex == 0 {
+		preLogTerm = 0
+	}
+
+	//获取一个idx 以后所有的log
+	tmpents, _ := r.RaftLog.Entris(followerNextIndex, r.RaftLog.LastIndex())
+	ents := []*pb.Entry{}
+	for _, ent := range tmpents {
+		tmpent := ent
+		ents = append(ents, &tmpent)
+	}
 
 	msg := pb.Message{
 		MsgType: pb.MessageType_MsgAppend,
@@ -62,7 +66,7 @@ func (r *Raft) sendAppend(to uint64) bool {
 	return true
 }
 
-func (r * Raft) bcastappend() error {
+func (r *Raft) bcastappend() error {
 	for peerID := range r.Prs {
 		if peerID == r.id {
 			continue
@@ -90,16 +94,26 @@ func (r *Raft) handleAppendEntries(m pb.Message) {
 	}
 	preLogTerm := m.LogTerm
 	preLogIndex := m.Index
-
-	if r.logMatch(preLogTerm, preLogIndex) == false {
+	if r.RaftLog.LogMatch(preLogTerm, preLogIndex) == false {
 		msg.Reject = true
 		r.msgs = append(r.msgs, msg)
 		return
 	}
-	//截断不合法日志
-	r.RaftLog.entries = r.RaftLog.entries[:preLogIndex+1]
-	for _, ent := range m.Entries {
-		r.RaftLog.entries = append(r.RaftLog.entries, *ent)
+
+	for newPrelogIndex:=preLogIndex+1; newPrelogIndex<=r.RaftLog.LastIndex() && len(m.Entries)>0;newPrelogIndex++ {
+		newPrelogTerm,_:= r.RaftLog.Term(newPrelogIndex)
+		if  newPrelogIndex == m.Entries[0].Index && newPrelogTerm == m.Entries[0].Term {
+			m.Entries = m.Entries[1:]
+			preLogIndex = newPrelogIndex
+		}
+	}
+	if len(m.Entries) != 0 {
+		//todo 截断不合法日志
+		r.RaftLog.Truncate(preLogIndex)
+		//补齐远端传过来的日志
+		for _, ent := range m.Entries {
+			r.RaftLog.Append(*ent)
+		}
 	}
 
 	//If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry)
@@ -122,7 +136,7 @@ func (r *Raft) leaderHandleAppendResp(m pb.Message) {
 		return
 	}
 	//If successful: update nextIndex and matchIndex for follower (§5.3)
-	r.Prs[m.From].Next = m.Index+1
+	r.Prs[m.From].Next = m.Index + 1
 	r.Prs[m.From].Match = m.Index
 	//set commit idx
 	r.RaftLog.committed = r.calcLeaderCommitIdx()
@@ -132,6 +146,10 @@ func (r *Raft) calcLeaderCommitIdx() uint64 {
 	//set commitIndex = N (§5.3, §5.4).
 	commitIdx := r.RaftLog.committed
 	for n := r.RaftLog.committed + 1; n <= r.RaftLog.LastIndex(); n++ {
+		logterm,_:= r.RaftLog.Term(n)
+		if logterm != r.Term {
+			continue
+		}
 		cnt := 1
 		for peerID := range r.Prs {
 			if peerID == r.id {
@@ -153,6 +171,11 @@ func (r *Raft) logMatch(preLogTerm uint64, preLogIndex uint64) bool {
 	if preLogIndex == 0 && preLogTerm == 0 {
 		return true
 	}
+
+	if preLogIndex < r.RaftLog.PreIndex {
+		panic("unsupport right now")
+	}
+
 	if r.RaftLog.LastIndex() < preLogIndex {
 		return false
 	}

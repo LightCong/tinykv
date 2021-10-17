@@ -1,6 +1,8 @@
 package raft
 
-import pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
+import (
+	pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
+)
 
 // sendHeartbeat sends a heartbeat RPC to the given peer.
 func (r *Raft) sendHeartbeat(to uint64) {
@@ -18,6 +20,7 @@ func (r *Raft) sendVote(to uint64) {
 	// Your Code Here (2A).
 	lastIdx := r.RaftLog.LastIndex()
 	logTerm, _ := r.RaftLog.Term(lastIdx)
+
 	msg := pb.Message{
 		Term:    r.Term,
 		MsgType: pb.MessageType_MsgRequestVote,
@@ -30,10 +33,11 @@ func (r *Raft) sendVote(to uint64) {
 }
 
 func (r *Raft) msgUptoDate(m pb.Message) bool {
-	if r.Term < m.Term {
+	localLogTerm,_:= r.RaftLog.Term(r.RaftLog.LastIndex())
+	if localLogTerm < m.LogTerm {
 		return true
 	}
-	if r.Term == m.Term && r.RaftLog.LastIndex() <= m.Index {
+	if localLogTerm == m.LogTerm && r.RaftLog.LastIndex() <= m.Index {
 		return true
 	}
 	return false
