@@ -1,6 +1,7 @@
 package raft
 
 import (
+	"fmt"
 	pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
 )
 
@@ -13,6 +14,8 @@ func (r *Raft) leaderAppendEntry(m pb.Message) error {
 			Term:      r.Term,
 		}
 		r.RaftLog.Append(newEnt)
+		r.Prs[r.id].Next =  r.RaftLog.LastIndex()+1
+		r.Prs[r.id].Match =  r.RaftLog.LastIndex()
 	}
 	if len(r.Prs) == 1 {
 		//直接提交并返回
@@ -92,33 +95,35 @@ func (r *Raft) handleAppendEntries(m pb.Message) {
 		r.msgs = append(r.msgs, msg)
 		return
 	}
-	preLogTerm := m.LogTerm
-	preLogIndex := m.Index
-	if r.RaftLog.LogMatch(preLogTerm, preLogIndex) == false {
+	remotePreLogTerm := m.LogTerm
+	remotePreLogIndex := m.Index
+	remoteEnts := m.Entries
+	if r.RaftLog.LogMatch(remotePreLogTerm, remotePreLogIndex) == false {
 		msg.Reject = true
 		r.msgs = append(r.msgs, msg)
 		return
 	}
 
-	for newPrelogIndex:=preLogIndex+1; newPrelogIndex<=r.RaftLog.LastIndex() && len(m.Entries)>0;newPrelogIndex++ {
+	for newPrelogIndex:=remotePreLogIndex+1; newPrelogIndex<=r.RaftLog.LastIndex() && len(remoteEnts)>0;newPrelogIndex++ {
 		newPrelogTerm,_:= r.RaftLog.Term(newPrelogIndex)
-		if  newPrelogIndex == m.Entries[0].Index && newPrelogTerm == m.Entries[0].Term {
-			m.Entries = m.Entries[1:]
-			preLogIndex = newPrelogIndex
+		if  newPrelogIndex == remoteEnts[0].Index && newPrelogTerm == remoteEnts[0].Term {
+			remoteEnts = remoteEnts[1:]
+			remotePreLogIndex = newPrelogIndex
 		}
 	}
-	if len(m.Entries) != 0 {
+	if len(remoteEnts) != 0 {
 		//todo 截断不合法日志
-		r.RaftLog.Truncate(preLogIndex)
+		r.RaftLog.Truncate(remotePreLogIndex)
 		//补齐远端传过来的日志
-		for _, ent := range m.Entries {
+		for _, ent := range remoteEnts {
 			r.RaftLog.Append(*ent)
 		}
 	}
 
 	//If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry)
 	if m.Commit > r.RaftLog.committed {
-		r.RaftLog.committed = min(m.Commit, r.RaftLog.LastIndex())
+		//r.RaftLog.committed = min(m.Commit, r.RaftLog.LastIndex())
+		r.RaftLog.committed = min(m.Commit, m.Index+uint64(len(m.Entries)))
 	}
 
 	msg.Reject = false
@@ -139,7 +144,14 @@ func (r *Raft) leaderHandleAppendResp(m pb.Message) {
 	r.Prs[m.From].Next = m.Index + 1
 	r.Prs[m.From].Match = m.Index
 	//set commit idx
+	oldCommited:= r.RaftLog.committed
 	r.RaftLog.committed = r.calcLeaderCommitIdx()
+	if oldCommited !=  r.RaftLog.committed{
+		fmt.Println("$$$$$$$$$$$$$$$",r.id,r.RaftLog.committed)
+		r.debug()
+		//r.bcastappend()
+		fmt.Println("$$$$$$$$$$$$$$$")
+	}
 }
 func (r *Raft) calcLeaderCommitIdx() uint64 {
 	//If there exists an N such that N > commitIndex, a majority  of matchIndex[i] ≥ N, and log[N].term == currentTerm:

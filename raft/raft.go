@@ -271,7 +271,7 @@ func (r *Raft) becomeLeader() {
 		if id == r.id {
 			continue
 		}
-		pr.Next = r.RaftLog.LastIndex()+1
+		pr.Next = r.RaftLog.LastIndex()+1 //todo next 的语义具体是什么？？
 		pr.Match = 0
 	}
 
@@ -472,6 +472,12 @@ func (r *Raft) removeNode(id uint64) {
 func (r * Raft) debug() {
 	fmt.Println("---------------------")
 	fmt.Printf("raft state:%+v\n",r)
+	for id,pr:=range r.Prs {
+		if id == r.id {
+			continue
+		}
+		fmt.Printf("peer id %v, peer process %+v\n",id,pr)
+	}
 	fmt.Printf("raft log state:%v\n",ltoa(r.RaftLog))
 	fmt.Println("---------------------")
 }

@@ -50,7 +50,6 @@ type stateMachine interface {
 func (r *Raft) readMessages() []pb.Message {
 	msgs := r.msgs
 	r.msgs = make([]pb.Message, 0)
-
 	return msgs
 }
 
@@ -344,10 +343,17 @@ func TestCommitWithoutNewTermEntry2AB(t *testing.T) {
 	// network recovery
 	tt.recover()
 
+	//sm.debug()
+
 	// elect 2 as the new leader with term 2
 	// after append a ChangeTerm entry from the current term, all entries
 	// should be committed
 	tt.send(pb.Message{From: 2, To: 2, MsgType: pb.MessageType_MsgHup})
+
+	//sm.debug()
+
+	ssm:=tt.peers[2].(*Raft)
+	ssm.debug()
 
 	if sm.RaftLog.committed != 4 {
 		t.Errorf("committed = %d, want %d", sm.RaftLog.committed, 4)
