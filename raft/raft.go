@@ -318,6 +318,7 @@ func (r *Raft) Step(m pb.Message) error {
 			if m.Term > r.Term {
 				r.becomeFollower(m.Term, m.From)
 			}
+			r.handleHeartbeat(m)
 			//follower 收到一个msg append 请求，如果感知到是更高term 的leader，则改为follow 这个lead
 		case pb.MessageType_MsgAppend:
 			if m.Term > r.Term {
@@ -374,13 +375,14 @@ func (r *Raft) Step(m pb.Message) error {
 			if m.Term >= r.Term {
 				r.becomeFollower(m.Term, m.From)
 			}
+			r.handleHeartbeat(m)
 			//竞选者收到一个msg append 请求，如果感知到是更高term 的leader，则改为follow 这个lead
 			//如果收到了同 term 的append气你供求，则改为follow 这个lead
 		case pb.MessageType_MsgAppend:
 			if m.Term >= r.Term {
 				r.becomeFollower(m.Term, m.From)
-				r.handleAppendEntries(m)
 			}
+			r.handleAppendEntries(m)
 		default:
 			err := fmt.Errorf("invalid state and recive msg %v,%v", r.State, m.MsgType)
 			fmt.Println(err.Error())
@@ -418,12 +420,13 @@ func (r *Raft) Step(m pb.Message) error {
 			if m.Term > r.Term {
 				r.becomeFollower(m.Term, m.From)
 			}
+			r.handleHeartbeat(m)
 			//leader 收到了其他leader 的msgappend 包，如果term 更高，会变成follower
 		case pb.MessageType_MsgAppend:
 			if m.Term > r.Term {
 				r.becomeFollower(m.Term, m.From)
-				r.handleAppendEntries(m)
 			}
+			r.handleAppendEntries(m)
 			//leader 收到了msgappend 回包，开始处理
 		case pb.MessageType_MsgAppendResponse:
 			if m.Term > r.Term {
@@ -433,6 +436,7 @@ func (r *Raft) Step(m pb.Message) error {
 			}
 		case pb.MessageType_MsgHeartbeatResponse:
 			//todo leader 处理自己发出去的心跳包的响应
+			r.sendAppend(m.From)
 		default:
 			err := fmt.Errorf("invalid state and recive msg %v,%v", r.State, m.MsgType)
 			fmt.Println(err.Error())
@@ -448,10 +452,7 @@ func (r *Raft) Step(m pb.Message) error {
 
 
 
-// handleHeartbeat handle Heartbeat RPC request
-func (r *Raft) handleHeartbeat(m pb.Message) {
-	// Your Code Here (2A).
-}
+
 
 // handleSnapshot handle Snapshot RPC request
 func (r *Raft) handleSnapshot(m pb.Message) {

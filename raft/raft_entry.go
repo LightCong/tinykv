@@ -89,12 +89,13 @@ func (r *Raft) handleAppendEntries(m pb.Message) {
 		Term:    r.Term,
 	}
 
-	//todo 不匹配时，返回点什么信息，帮助leader 补齐日志？
-	if m.Term < r.Term {
+	if r.State != StateFollower ||  m.Term < r.Term {
 		msg.Reject = true
 		r.msgs = append(r.msgs, msg)
 		return
 	}
+
+	r.electionElapsed = 0
 	remotePreLogTerm := m.LogTerm
 	remotePreLogIndex := m.Index
 	remoteEnts := m.Entries

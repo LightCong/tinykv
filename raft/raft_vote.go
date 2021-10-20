@@ -4,17 +4,7 @@ import (
 	pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
 )
 
-// sendHeartbeat sends a heartbeat RPC to the given peer.
-func (r *Raft) sendHeartbeat(to uint64) {
-	// Your Code Here (2A).
-	msg := pb.Message{
-		MsgType: pb.MessageType_MsgHeartbeat,
-		From:    r.id,
-		To:      to,
-		Term:    r.Term,
-	}
-	r.msgs = append(r.msgs, msg)
-}
+
 
 func (r *Raft) sendVote(to uint64) {
 	// Your Code Here (2A).
