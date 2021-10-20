@@ -130,6 +130,7 @@ type Raft struct {
 
 	// votes records
 	votes map[uint64]bool //记录别人是否投票给我了
+	rejectVotes map[uint64]bool //记录别人是否投反对票给我了
 
 	// msgs need to send
 	msgs []pb.Message
@@ -201,8 +202,10 @@ func (r *Raft) initRaft() {
 	r.randElectionTimeout = r.electionTimeout + rand.Intn(r.electionTimeout)
 	r.Lead = 0
 	r.votes = make(map[uint64]bool, len(r.Prs))
+	r.rejectVotes = make(map[uint64]bool, len(r.Prs))
 	for pid := range r.Prs {
 		r.votes[pid] = false
+		r.rejectVotes[pid] = false
 	}
 }
 
@@ -232,58 +235,6 @@ func (r *Raft) tick() {
 			r.Step(localMsg)
 		}
 	}
-}
-
-// becomeFollower transform this peer's state to Follower
-func (r *Raft) becomeFollower(term uint64, lead uint64) {
-	// Your Code Here (2A).
-	r.initRaft()
-	r.State = StateFollower
-	r.Term = term
-	r.Lead = lead
-}
-
-func (r *Raft) becomeFollowerStateWhenReciveVote(term uint64) {
-	// Your Code Here (2A).
-	r.initRaft()
-	r.State = StateFollower
-	r.Term = term
-}
-
-// becomeCandidate transform this peer's state to candidate
-func (r *Raft) becomeCandidate() {
-	r.initRaft()
-	r.Term += 1
-	//follower将自己的状态变为candidate。
-	r.State = StateCandidate
-	//投票给自己。
-	r.Vote = r.id
-	r.votes[r.id] = true
-}
-
-// becomeLeader transform this peer's state to leader
-func (r *Raft) becomeLeader() {
-	r.initRaft()
-	r.Lead = r.id
-	r.State = StateLeader
-	//todo 更新process
-	for id,pr:=range r.Prs {
-		if id == r.id {
-			continue
-		}
-		pr.Next = r.RaftLog.LastIndex()+1 //todo next 的语义具体是什么？？
-		pr.Match = 0
-	}
-
-	// Your Code Here (2A).
-	// todo NOTE: Leader should propose a noop entry on its term
-	m := pb.Message{
-		MsgType: pb.MessageType_MsgPropose,
-		Term:    r.Term,
-		Entries: []*pb.Entry{{EntryType: pb.EntryType_EntryNormal}},
-	}
-	r.leaderAppendEntry(m)
-	r.bcastappend()
 }
 
 // Step the entrance of handle message, see `MessageType`
@@ -354,22 +305,10 @@ func (r *Raft) Step(m pb.Message) error {
 
 			//竞选者，收到投票结论
 		case pb.MessageType_MsgRequestVoteResponse:
-			if m.Reject == false {
-				r.votes[m.From] = true
-			}
-			voteNum := 0
-			for _, vote := range r.votes {
-				if vote == true {
-					voteNum += 1
-				}
-			}
-			if voteNum > len(r.votes)/2 {
-				r.becomeLeader()
-			}
+			r.handleVoteResp(m)
 			//竞选者 收到一个心跳 请求，
 			//如果感知到是更高term 的leader，则改为follow 这个lead
 			//如果收到了同 term 的心跳，则改为follow 这个lead
-
 			//竞选者收到心跳包
 		case pb.MessageType_MsgHeartbeat:
 			if m.Term >= r.Term {
@@ -445,14 +384,6 @@ func (r *Raft) Step(m pb.Message) error {
 	}
 	return nil
 }
-
-
-
-
-
-
-
-
 
 // handleSnapshot handle Snapshot RPC request
 func (r *Raft) handleSnapshot(m pb.Message) {

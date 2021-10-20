@@ -4,8 +4,6 @@ import (
 	pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
 )
 
-
-
 func (r *Raft) sendVote(to uint64) {
 	// Your Code Here (2A).
 	lastIdx := r.RaftLog.LastIndex()
@@ -23,7 +21,7 @@ func (r *Raft) sendVote(to uint64) {
 }
 
 func (r *Raft) msgUptoDate(m pb.Message) bool {
-	localLogTerm,_:= r.RaftLog.Term(r.RaftLog.LastIndex())
+	localLogTerm, _ := r.RaftLog.Term(r.RaftLog.LastIndex())
 	if localLogTerm < m.LogTerm {
 		return true
 	}
@@ -53,5 +51,33 @@ func (r *Raft) handleVote(m pb.Message) {
 			Term:    r.Term,
 		}
 		r.msgs = append(r.msgs, msg)
+	}
+}
+
+func (r *Raft) handleVoteResp(m pb.Message) {
+	if m.Reject == false {
+		r.votes[m.From] = true
+	} else {
+		r.rejectVotes[m.From] = true
+	}
+
+	voteNum := 0
+	for _, vote := range r.votes {
+		if vote == true {
+			voteNum += 1
+		}
+	}
+	if voteNum > len(r.votes)/2 {
+		r.becomeLeader()
+	}
+
+	rejectVoteNum := 0
+	for _, vote := range r.rejectVotes {
+		if vote == true {
+			rejectVoteNum += 1
+		}
+	}
+	if rejectVoteNum > len(r.rejectVotes)/2 {
+		r.becomeFollowerWithoutTerm()
 	}
 }
