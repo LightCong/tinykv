@@ -15,21 +15,13 @@ GO111MODULE=on go test -v --count=1 --parallel=1 -p=1 ./raft -run 2AB
 --- PASS: TestFollowerAppendEntries2AB (0.00s)
 === RUN   TestLeaderSyncFollowerLog2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_paper_test.go:757: #0: log diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base406998089	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other805530900	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 12
-        +committed: 11
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
---- FAIL: TestLeaderSyncFollowerLog2AB (0.00s)
+--- PASS: TestLeaderSyncFollowerLog2AB (0.00s)
 === RUN   TestVoteRequest2AB
 --- PASS: TestVoteRequest2AB (0.00s)
 === RUN   TestVoter2AB
 ---------------------
-raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc0001ae230 Prs:map[1:0xc0001900e0 2:0xc0001900f0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:15 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc00013b3b0 Prs:map[1:0xc000015780 2:0xc000015790] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:10 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -37,7 +29,8 @@ applied:  0
 
 ---------------------
 ---------------------
-raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc0001ae3c0 Prs:map[1:0xc0001902e0 2:0xc0001902f0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:18 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc00013b540 Prs:map[1:0xc0000159b0 2:0xc0000159c0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:15 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -45,32 +38,8 @@ applied:  0
 
 ---------------------
 ---------------------
-raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc0001ae550 Prs:map[1:0xc0001904e0 2:0xc0001904f0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:18 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
-raft log state:committed: 0
-applied:  0
-#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-#2: {EntryType:EntryNormal Term:1 Index:2 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-
----------------------
----------------------
-raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc0001ae730 Prs:map[1:0xc000190720 2:0xc000190730] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:13 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
-raft log state:committed: 0
-applied:  0
-#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-
----------------------
----------------------
-raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc0001ae8c0 Prs:map[1:0xc000190920 2:0xc000190930] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:15 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
-raft log state:committed: 0
-applied:  0
-#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-
----------------------
----------------------
-raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc0001aea50 Prs:map[1:0xc000190b20 2:0xc000190b30] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:11 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc00013b6d0 Prs:map[1:0xc000015be0 2:0xc000015bf0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:16 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -79,7 +48,36 @@ applied:  0
 
 ---------------------
 ---------------------
-raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc0001aec30 Prs:map[1:0xc000190d50 2:0xc000190d60] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:10 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc00013b8b0 Prs:map[1:0xc000015e40 2:0xc000015e50] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:16 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
+raft log state:committed: 0
+applied:  0
+#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+
+---------------------
+---------------------
+raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc00013ba40 Prs:map[1:0xc00015c070 2:0xc00015c080] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:18 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
+raft log state:committed: 0
+applied:  0
+#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+
+---------------------
+---------------------
+raft state:&{id:1 Term:3 Vote:2 RaftLog:0xc00013bbd0 Prs:map[1:0xc00015c2a0 2:0xc00015c2b0] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:false XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:11 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
+raft log state:committed: 0
+applied:  0
+#0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+#1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+#2: {EntryType:EntryNormal Term:1 Index:2 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
+
+---------------------
+---------------------
+raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc00013bdb0 Prs:map[1:0xc00015c510 2:0xc00015c520] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:12 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -87,7 +85,8 @@ applied:  0
 
 ---------------------
 ---------------------
-raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc0001aedc0 Prs:map[1:0xc000190f50 2:0xc000190f60] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:15 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc00013bf40 Prs:map[1:0xc00015c740 2:0xc00015c750] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:13 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -95,7 +94,8 @@ applied:  0
 
 ---------------------
 ---------------------
-raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc0001aef50 Prs:map[1:0xc000191150 2:0xc000191160] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:16 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+raft state:&{id:1 Term:3 Vote:0 RaftLog:0xc0001600f0 Prs:map[1:0xc00015c970 2:0xc00015c980] State:StateFollower votes:map[1:false 2:false] msgs:[{MsgType:6 To:2 From:1 Term:3 LogTerm:0 Index:0 Entries:[] Commit:0 Snapshot:<nil> Reject:true XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Lead:0 heartbeatTimeout:1 electionTimeout:10 randElectionTimeout:16 heartbeatElapsed:0 electionElapsed:0 leadTransferee:0 PendingConfIndex:0}
+peer id 2, peer process &{Match:0 Next:0}
 raft log state:committed: 0
 applied:  0
 #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
@@ -110,11 +110,10 @@ applied:  0
 --- PASS: TestProgressLeader2AB (0.00s)
 === RUN   TestLeaderElectionOverwriteNewerLogs2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:163: state = StateLeader, want StateFollower
+    raft_test.go:162: state = StateLeader, want StateFollower
 invalid state and recive msg StateLeader,MsgHup
-    raft_test.go:175: term = 2, want 3
-    raft_test.go:184: node 1: len(entries) == 3, want 2
+    raft_test.go:174: term = 2, want 3
+    raft_test.go:183: node 1: len(entries) == 3, want 2
 --- FAIL: TestLeaderElectionOverwriteNewerLogs2AB (0.00s)
 === RUN   TestSingleNodeCommit2AB
 --- PASS: TestSingleNodeCommit2AB (0.00s)
@@ -123,140 +122,49 @@ invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:353: committed = 1, want 4
---- FAIL: TestCommitWithoutNewTermEntry2AB (0.00s)
+--- PASS: TestCommitWithoutNewTermEntry2AB (0.00s)
 === RUN   TestCommitWithHeartbeat2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:371: committed = 0, want 1
-    raft_test.go:381: committed = 0, want 3
+    raft_test.go:386: committed = 1, want 3
 --- FAIL: TestCommitWithHeartbeat2AB (0.00s)
 === RUN   TestDuelingCandidates2AB
-    raft_test.go:439: #1: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base969924963	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other710278502	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 1
-        +committed: 0
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:430: #2: state = StateCandidate, want StateFollower
+    raft_test.go:435: #2: state = StateCandidate, want StateFollower
 --- FAIL: TestDuelingCandidates2AB (0.00s)
 === RUN   TestCandidateConcede2AB
-    raft_test.go:479: #1: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base898410381	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other919283592	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:479: #2: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base536332103	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other398940154	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
---- FAIL: TestCandidateConcede2AB (0.01s)
+--- PASS: TestCandidateConcede2AB (0.00s)
 === RUN   TestOldMessages2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:520: #2: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base814607121	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other080272188	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 4
-        +committed: 3
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:520: #3: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base314057579	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other264658382	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 4
-        +committed: 3
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
---- FAIL: TestOldMessages2AB (0.01s)
+--- PASS: TestOldMessages2AB (0.00s)
 === RUN   TestProposal2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:557: #2: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base841119957	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other735148080	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:557: #3: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base829397455	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other373932258	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:557: #2: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base535049945	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other274108004	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
 invalid state and recive msg StateCandidate,MsgPropose
 invalid state and recive msg StateCandidate,MsgPropose
-    raft_test.go:557: #4: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base716508787	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other103962934	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-    raft_test.go:557: #5: diff:
-        --- /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/base137365277	2021-10-17 23:24:46.000000000 +0800
-        +++ /var/folders/zq/zx5zlflx30g20ctfwhy8b5m00000gn/T/other072632792	2021-10-17 23:24:46.000000000 +0800
-        @@ -1,4 +1,4 @@
-        -committed: 2
-        +committed: 1
-         applied:  0
-         #0: {EntryType:EntryNormal Term:0 Index:0 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
-         #1: {EntryType:EntryNormal Term:1 Index:1 Data:[] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}
---- FAIL: TestProposal2AB (0.02s)
+--- PASS: TestProposal2AB (0.00s)
 === RUN   TestHandleMessageType_MsgAppend2AB
 --- PASS: TestHandleMessageType_MsgAppend2AB (0.00s)
 === RUN   TestRecvMessageType_MsgRequestVote2AB
 --- PASS: TestRecvMessageType_MsgRequestVote2AB (0.00s)
 === RUN   TestAllServerStepdown2AB
-    raft_test.go:741: #0.0 len(ents) = 1 , want 0
-    raft_test.go:741: #0.1 len(ents) = 1 , want 0
-    raft_test.go:748: #0, sm.Lead = 0, want 2
-    raft_test.go:741: #1.0 len(ents) = 1 , want 0
-    raft_test.go:741: #1.1 len(ents) = 1 , want 0
-    raft_test.go:748: #1, sm.Lead = 0, want 2
-    raft_test.go:741: #2.0 len(ents) = 2 , want 1
-    raft_test.go:741: #2.1 len(ents) = 2 , want 1
-    raft_test.go:748: #2, sm.Lead = 0, want 2
+    raft_test.go:746: #0.0 len(ents) = 1 , want 0
+    raft_test.go:746: #0.1 len(ents) = 1 , want 0
+    raft_test.go:753: #0, sm.Lead = 0, want 2
+    raft_test.go:746: #1.0 len(ents) = 1 , want 0
+    raft_test.go:746: #1.1 len(ents) = 1 , want 0
+    raft_test.go:753: #1, sm.Lead = 0, want 2
+    raft_test.go:746: #2.0 len(ents) = 2 , want 1
+    raft_test.go:746: #2.1 len(ents) = 2 , want 1
+    raft_test.go:753: #2, sm.Lead = 0, want 2
 --- FAIL: TestAllServerStepdown2AB (0.00s)
 === RUN   TestHeartbeatUpdateCommit2AB
 invalid state and recive msg StateLeader,MsgRequestVoteResponse
-    raft_test.go:941: #0: expected sm3 commit: 3, got: 2
---- FAIL: TestHeartbeatUpdateCommit2AB (0.00s)
+invalid state and recive msg StateLeader,MsgRequestVoteResponse
+invalid state and recive msg StateLeader,MsgRequestVoteResponse
+--- PASS: TestHeartbeatUpdateCommit2AB (0.00s)
 === RUN   TestLeaderIncreaseNext2AB
 --- PASS: TestLeaderIncreaseNext2AB (0.00s)
 FAIL
-FAIL	github.com/pingcap-incubator/tinykv/raft	0.050s
+FAIL	github.com/pingcap-incubator/tinykv/raft	0.014s
 FAIL

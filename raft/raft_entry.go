@@ -1,7 +1,6 @@
 package raft
 
 import (
-	"fmt"
 	pb "github.com/pingcap-incubator/tinykv/proto/pkg/eraftpb"
 )
 
@@ -30,7 +29,7 @@ func (r *Raft) sendAppend(to uint64) bool {
 	// Your Code Here (2A).
 	//If last log index ≥ nextIndex for a follower: send AppendEntries RPC with log entries starting at nextIndex
 	followerNextIndex := r.Prs[to].Next
-	if r.RaftLog.LastIndex() < followerNextIndex {
+	if r.RaftLog.LastIndex()+1 < followerNextIndex {
 		return false
 	}
 	//lastindex >= follower.nextindex && lastindex !=0
@@ -46,14 +45,15 @@ func (r *Raft) sendAppend(to uint64) bool {
 		preLogTerm = 0
 	}
 
-	//获取一个idx 以后所有的log
-	tmpents, _ := r.RaftLog.Entris(followerNextIndex, r.RaftLog.LastIndex())
 	ents := []*pb.Entry{}
-	for _, ent := range tmpents {
-		tmpent := ent
-		ents = append(ents, &tmpent)
+	//获取一个idx 以后所有的log
+	if followerNextIndex <= r.RaftLog.LastIndex() {
+		tmpents, _ := r.RaftLog.Entris(followerNextIndex, r.RaftLog.LastIndex())
+		for _, ent := range tmpents {
+			tmpent := ent
+			ents = append(ents, &tmpent)
+		}
 	}
-
 	msg := pb.Message{
 		MsgType: pb.MessageType_MsgAppend,
 		From:    r.id,
@@ -147,10 +147,7 @@ func (r *Raft) leaderHandleAppendResp(m pb.Message) {
 	oldCommited:= r.RaftLog.committed
 	r.RaftLog.committed = r.calcLeaderCommitIdx()
 	if oldCommited !=  r.RaftLog.committed{
-		fmt.Println("$$$$$$$$$$$$$$$",r.id,r.RaftLog.committed)
-		r.debug()
-		//r.bcastappend()
-		fmt.Println("$$$$$$$$$$$$$$$")
+		r.bcastappend()
 	}
 }
 func (r *Raft) calcLeaderCommitIdx() uint64 {

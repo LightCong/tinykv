@@ -352,8 +352,7 @@ func TestCommitWithoutNewTermEntry2AB(t *testing.T) {
 
 	//sm.debug()
 
-	ssm:=tt.peers[2].(*Raft)
-	ssm.debug()
+	//ssm:=tt.peers[2].(*Raft)
 
 	if sm.RaftLog.committed != 4 {
 		t.Errorf("committed = %d, want %d", sm.RaftLog.committed, 4)
@@ -1614,7 +1613,15 @@ func (nw *network) send(msgs ...pb.Message) {
 	for len(msgs) > 0 {
 		m := msgs[0]
 		p := nw.peers[m.To]
+		//f := nw.peers[m.From]
+		//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~")
+		//ssm:=f.(*Raft)
+		//ssm.debug()
+		//fmt.Printf("msg passing from %v,to %v,msg detail is %+v\n", m.From,m.To,m)
 		p.Step(m)
+		//sm:=p.(*Raft)
+		//sm.debug()
+		//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~")
 		msgs = append(msgs[1:], nw.filter(p.readMessages())...)
 	}
 }
