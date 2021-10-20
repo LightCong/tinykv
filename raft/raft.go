@@ -315,13 +315,13 @@ func (r *Raft) Step(m pb.Message) error {
 			r.handleVote(m)
 			//follower 收到一个心跳消息,如果感知到term 更高，则改为follow 这个lead
 		case pb.MessageType_MsgHeartbeat:
-			if m.Term > r.Term {
+			if m.Term > r.Term || (r.Lead == 0 && m.Term == r.Term){
 				r.becomeFollower(m.Term, m.From)
 			}
 			r.handleHeartbeat(m)
 			//follower 收到一个msg append 请求，如果感知到是更高term 的leader，则改为follow 这个lead
 		case pb.MessageType_MsgAppend:
-			if m.Term > r.Term {
+			if m.Term > r.Term || (r.Lead == 0 && m.Term == r.Term) {
 				r.becomeFollower(m.Term, m.From)
 			}
 			r.handleAppendEntries(m)
