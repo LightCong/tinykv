@@ -176,7 +176,7 @@ func TestLeaderElectionOverwriteNewerLogs2AB(t *testing.T) {
 	}
 
 	// Now all nodes agree on a log entry with term 1 at index 1 (and
-	// term 3 at index 2).
+	//// term 3 at index 2).
 	//for i := range n.peers {
 	//	sm := n.peers[i].(*Raft)
 	//	entries := sm.RaftLog.entries

@@ -173,6 +173,7 @@ func newRaft(c *Config) *Raft {
 		panic(err.Error())
 	}
 	// Your Code Here (2A).
+
 	raftLog := newLog(c.Storage)
 	raftLog.applied = c.Applied
 	prs := make(map[uint64]*Progress, len(c.peers))
@@ -191,6 +192,17 @@ func newRaft(c *Config) *Raft {
 		heartbeatTimeout: c.HeartbeatTick,
 		electionTimeout:  c.ElectionTick,
 	}
+
+	if c.Storage == nil {
+		return &r
+	}
+
+	hardState,_,err:= c.Storage.InitialState()
+	if err != nil {
+		panic("invalid newRaft state")
+	}
+	r.Term = hardState.Term
+	r.Vote = hardState.Vote
 	return &r
 }
 
