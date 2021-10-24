@@ -77,14 +77,20 @@ func newLog(storage Storage) *RaftLog {
 	} else {
 		raftLog.entries[0].Index = lo - 1
 	}
-
-	raftLog.applied = raftLog.entries[0].Index
 	raftLog.PreIndex = raftLog.entries[0].Index
 	raftLog.stabled = hi
+	//raftLog.applied = raftLog.entries[0].Index
 
 	for _, ent := range entries {
 		raftLog.entries = append(raftLog.entries, ent)
 	}
+
+	hardState, _, nerr := storage.InitialState()
+	if nerr != nil {
+		panic("invalid newRaft state")
+	}
+	raftLog.committed = hardState.Commit
+
 	return &raftLog
 }
 
@@ -111,11 +117,12 @@ func (l *RaftLog) unstableEntries() []pb.Entry {
 // nextEnts returns all the committed but not applied entries
 func (l *RaftLog) nextEnts() (ents []pb.Entry) {
 	// Your Code Here (2A).
-	if len(l.entries) > 0 {
-		return l.entries[l.applied-l.PreIndex+1 : l.committed-l.PreIndex+1]
+	if l.applied == l.committed {
+		return []pb.Entry{}
 	}
-	return nil
+	return l.entries[l.applied-l.PreIndex+1 : l.committed-l.PreIndex+1]
 }
+
 
 // LastIndex return the last index of the log entries
 func (l *RaftLog) LastIndex() uint64 {
@@ -138,20 +145,20 @@ func (l *RaftLog) Append(ent pb.Entry) {
 	l.entries = append(l.entries, ent)
 }
 
-func (l * RaftLog) Entris(lo uint64, hi uint64) ([]pb.Entry,error) {
-	if lo >= l.PreIndex && hi>= lo  && hi <= l.LastIndex() {
-		ents:=l.entries[lo-l.PreIndex : hi-l.PreIndex+1]
-		return ents,nil
+func (l *RaftLog) Entris(lo uint64, hi uint64) ([]pb.Entry, error) {
+	if lo >= l.PreIndex && hi >= lo && hi <= l.LastIndex() {
+		ents := l.entries[lo-l.PreIndex : hi-l.PreIndex+1]
+		return ents, nil
 	}
 	panic("unsupport right")
-	return nil,nil
+	return nil, nil
 }
 
-func (l * RaftLog) Truncate (preLogIndex uint64) {
+func (l *RaftLog) Truncate(preLogIndex uint64) {
 	//todo 截断不合法日志
-	if preLogIndex>= l.PreIndex {
+	if preLogIndex >= l.PreIndex {
 		l.entries = l.entries[:preLogIndex-l.PreIndex+1]
-		if l.stabled> preLogIndex {
+		if l.stabled > preLogIndex {
 			l.stabled = preLogIndex
 		}
 		return
@@ -159,8 +166,7 @@ func (l * RaftLog) Truncate (preLogIndex uint64) {
 	panic("unsupport right now")
 }
 
-
-func (l * RaftLog) LogMatch(preLogTerm uint64, preLogIndex uint64) bool {
+func (l *RaftLog) LogMatch(preLogTerm uint64, preLogIndex uint64) bool {
 	//需要从头开始copy日志
 	if preLogIndex == 0 && preLogTerm == 0 {
 		return true
@@ -178,4 +184,3 @@ func (l * RaftLog) LogMatch(preLogTerm uint64, preLogIndex uint64) bool {
 	}
 	return false
 }
-

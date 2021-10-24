@@ -14,6 +14,7 @@
 
 //https://www.cnblogs.com/lygin/p/15141330.html
 package raft
+
 //todo 把index 整成从1 开始的，注意len（entris） done
 //todo append marjority 还得再看下 done
 //持久化 hardstate （term，votefor，commit），log 这些
@@ -129,7 +130,7 @@ type Raft struct {
 	State StateType
 
 	// votes records
-	votes map[uint64]bool //记录别人是否投票给我了
+	votes       map[uint64]bool //记录别人是否投票给我了
 	rejectVotes map[uint64]bool //记录别人是否投反对票给我了
 
 	// msgs need to send
@@ -173,9 +174,10 @@ func newRaft(c *Config) *Raft {
 		panic(err.Error())
 	}
 	// Your Code Here (2A).
-
 	raftLog := newLog(c.Storage)
-	raftLog.applied = c.Applied
+	if c.Applied > 0 {
+		raftLog.applied = c.Applied
+	}
 	prs := make(map[uint64]*Progress, len(c.peers))
 	for _, pid := range c.peers {
 		prs[pid] = &Progress{}
@@ -197,12 +199,13 @@ func newRaft(c *Config) *Raft {
 		return &r
 	}
 
-	hardState,_,err:= c.Storage.InitialState()
+	hardState, _, err := c.Storage.InitialState()
 	if err != nil {
 		panic("invalid newRaft state")
 	}
 	r.Term = hardState.Term
 	r.Vote = hardState.Vote
+
 	return &r
 }
 
@@ -220,7 +223,6 @@ func (r *Raft) initRaft() {
 		r.rejectVotes[pid] = false
 	}
 }
-
 
 // tick advances the internal logical clock by a single tick.
 func (r *Raft) tick() {
@@ -278,7 +280,7 @@ func (r *Raft) Step(m pb.Message) error {
 			r.handleVote(m)
 			//follower 收到一个心跳消息,如果感知到term 更高，则改为follow 这个lead
 		case pb.MessageType_MsgHeartbeat:
-			if m.Term > r.Term || (r.Lead == 0 && m.Term == r.Term){
+			if m.Term > r.Term || (r.Lead == 0 && m.Term == r.Term) {
 				r.becomeFollower(m.Term, m.From)
 			}
 			r.handleHeartbeat(m)
@@ -412,16 +414,19 @@ func (r *Raft) removeNode(id uint64) {
 	// Your Code Here (3A).
 }
 
+func (r *Raft) hardState() pb.HardState {
+	return pb.HardState{Term: r.Term, Vote: r.Vote, Commit: r.RaftLog.committed}
+}
 
-func (r * Raft) debug() {
+func (r *Raft) debug() {
 	fmt.Println("---------------------")
-	fmt.Printf("raft state:%+v\n",r)
-	for id,pr:=range r.Prs {
+	fmt.Printf("raft state:%+v\n", r)
+	for id, pr := range r.Prs {
 		if id == r.id {
 			continue
 		}
-		fmt.Printf("peer id %v, peer process %+v\n",id,pr)
+		fmt.Printf("peer id %v, peer process %+v\n", id, pr)
 	}
-	fmt.Printf("raft log state:%v\n",ltoa(r.RaftLog))
+	fmt.Printf("raft log state:%v\n", ltoa(r.RaftLog))
 	fmt.Println("---------------------")
 }
